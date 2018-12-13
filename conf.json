@@ -1,0 +1,41 @@
+{
+    "nodes": [
+        {
+            "ip": "10.1.0.110",
+            "sensor": {
+            }
+        },
+        {
+            "ip": "10.1.0.111",
+            "sensor": {
+                "type": "pulse",
+                "read_rate": 100,
+                "pin": 0
+            }
+        },
+        {
+            "ip": "10.1.0.112",
+            "sensor": {
+                "type": "dht",
+                "read_rate": 0.5,
+                "pin": 5
+            }
+        },
+        {
+            "ip": "10.1.0.113",
+            "sensor": {
+                "type": "alcohol",
+                "read_rate": 0.5,
+                "pin": 0
+            }
+        },
+        {
+            "ip": "10.1.0.114",
+            "sensor": {
+                "type": "flex",
+                "read_rate": 10,
+                "pin": 0
+            }
+        }
+    ]
+}
