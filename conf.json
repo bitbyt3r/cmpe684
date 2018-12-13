@@ -33,7 +33,7 @@
             "ip": "10.1.0.114",
             "sensor": {
                 "type": "flex",
-                "read_rate": 10,
+                "read_rate": 50,
                 "pin": 0
             }
         }

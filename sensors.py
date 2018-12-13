@@ -24,7 +24,8 @@ def run(config):
         beat_time = time.ticks_ms()
         while True:
             try:
-                reading = adc.read()
+                reading = adc.read() + adc.read() + adc.read() + adc.read() + adc.read()
+                reading /= 5
                 readings.append(reading)
                 readings = readings[max(0,len(readings)-100):]
                 maxima, minima = max(readings), min(readings)

@@ -57,6 +57,7 @@ for node in nodes:
             for path in ['ws_connection.py', 'ws_server.py']:
                 time.sleep(0.2)
                 os.system("./webrepl/webrepl_cli.py -p admin upy-websocket-server/{} {}:/{}".format(path, flaship, path))
+            os.system("./webrepl/webrepl_cli.py -p admin reconnecting-websocket.min.js {}:/reconnecting-websocket.min.js".format(flaship))
         else:
             time.sleep(0.2)
             os.system("./webrepl/webrepl_cli.py -p admin sensors.py {}:/sensors.py".format(flaship))
