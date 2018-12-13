@@ -9,47 +9,84 @@
         <title>Body Monitor</title>
         <script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
         <script src="//unpkg.com/vue-material@beta"></script>
+        <script src="//cdn.plot.ly/plotly-latest.min.js"></script>
     </head>
-<body>
-    <div id="app">
-        <md-app>
-            <md-app-toolbar class="md-primary">
-                <span class="md-title">Body Monitor</span>
-            </md-app-toolbar>
-            <md-app-content>
-                <div v-for="sensor in sensors" :key="sensor.name" :id="sensor.name">
+    <body>
+        <div id="app">
+            <md-app>
+                <md-app-toolbar class="md-primary">
+                    <span class="md-title">Body Monitor</span>
+                </md-app-toolbar>
+                <md-app-content>
+                    <div v-for="(sensor, name) in sensors" :key="name" :id="name">
+                        {{ name }}
+                    </div>
+                </md-app-content>
+            </md-app>
+        </div>
+        <script>
+            window.onload = function() {
+                Vue.use(VueMaterial.default);
 
-                </div>
-            </md-app-content>
-        </md-app>
-    </div>
-</body>
-
-Received: <br/>
-<div id="response">
-    (Received content)
-</div>
-
-<script>
-    window.onload = function() {
-        Vue.use(VueMaterial.default);
-
-        var app = new Vue({
-            el: '#app',
-            data: {
-                sensors: []
-            },
-            mounted() {
-                var ws = new WebSocket("ws://" + location.hostname + ":80");
-                ws.onmessage = this.sensor_reading;
-            },
-            methods: {
-                sensor_reading(evt) {
-                    console.log(evt);
-                }
-            }
-        });
-    };
-</script>
-</body>
+                var app = new Vue({
+                    el: '#app',
+                    data: {
+                        sensors: {
+                            bpm: {x: [], y: []},
+                            pulse: {x: [], y: []},
+                            temperature: {x: [], y: []},
+                            humidity: {x: [], y: []},
+                            alcohol: {x: [], y: []},
+                            flex: {x: [], y: []},
+                        }
+                    },
+                    mounted() {
+                        var ws = new WebSocket("ws://" + location.hostname + ":80");
+                        for (var name in this.sensors) {
+                            var layout = {
+                                height: 300,
+                                width: 1000
+                            }
+                            Plotly.newPlot(name, [{
+                                x: this.sensors[name]['x'],
+                                y: this.sensors[name]['y'],
+                                line: {simplify: false}
+                            }], layout);
+                        }
+                        ws.onmessage = this.sensor_reading;
+                        window.setInterval(this.update_plots, 1000);
+                    },
+                    methods: {
+                        sensor_reading(evt) {
+                            var reading = JSON.parse(evt.data);
+                            this.sensors[reading.type]['y'].push(reading.value);
+                            this.sensors[reading.type]['x'].push(new Date());
+                        },
+                        update_plots() {
+                            for (var name in this.sensors) {
+                                var length = this.sensors[name]['y'].length
+                                if (length > 100) {
+                                    this.sensors[name]['y'] = this.sensors[name]['y'].slice(length-100, length);
+                                    this.sensors[name]['x'] = this.sensors[name]['x'].slice(length-100, length);
+                                }
+                                Plotly.animate(name, {
+                                    data: [this.sensors[name]],
+                                    traces: [0],
+                                    layout: {}
+                                }, {
+                                    transition: {
+                                    duration: 500,
+                                    easing: 'cubic-in-out'
+                                    },
+                                    frame: {
+                                        duration: 500
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            };
+        </script>
+    </body>
 </html>
